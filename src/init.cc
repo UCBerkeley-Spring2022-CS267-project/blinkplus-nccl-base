@@ -890,6 +890,9 @@ ncclResult_t ncclCommInitRank(ncclComm_t* newcomm, int nranks, ncclUniqueId comm
 
 NCCL_API(ncclResult_t, ncclCommInitAll, ncclComm_t* comms, int ndev, const int* devlist);
 ncclResult_t ncclCommInitAll(ncclComm_t* comms, int ndev, const int* devlist) {
+  
+  printf("!!!CUSTOMIZE BUILD NCCL RUN!!!\n"); fflush(stdout);
+
   NCCLCHECK(PtrCheck(comms, "CommInitAll", "comms"));
   if (ndev < 0) {
     WARN("Invalid device count requested : %d", ndev);
