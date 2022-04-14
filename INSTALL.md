@@ -7,10 +7,12 @@
 echo $CUDA_HOME
 > /jet/packages/spack/opt/spack/linux-centos8-zen/gcc-8.3.1/cuda-11.1.1-a6ajxenobex5bvpejykhtnfut4arfpwh
 
-# build bridge 2 use sm_60
-make src.build CUDA_HOME="/jet/packages/spack/opt/spack/linux-centos8-zen/gcc-8.3.1/cuda-11.1.1-a6ajxenobex5bvpejykhtnfut4arfpwh" NVCC_GENCODE="-gencode=arch=compute_60,code=sm_60"
+# build V100 use sm_70
+# NOTE: if you are using different platform, change the sm_ compute_ to your target
+# reference https://arnon.dk/tag/nvcc-flags/
+make src.build CUDA_HOME="/jet/packages/spack/opt/spack/linux-centos8-zen/gcc-8.3.1/cuda-11.1.1-a6ajxenobex5bvpejykhtnfut4arfpwh" NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70"
 
-make src.build NVCC_GENCODE="-gencode=arch=compute_60,code=sm_60"
+make src.build NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70"
 
 # export env variable for cmake build
 # under nccl root directory
