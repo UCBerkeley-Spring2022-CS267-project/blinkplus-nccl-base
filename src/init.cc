@@ -542,6 +542,7 @@ static ncclResult_t checkCollNetSetup(struct ncclComm* comm, int rank, int collN
 NCCL_PARAM(CrossNic, "CROSS_NIC", 2);
 NCCL_PARAM(GraphDumpFileRank, "GRAPH_DUMP_FILE_RANK", 0);
 
+// NOTE: Core function on initialization
 static ncclResult_t initTransportsRank(struct ncclComm* comm, ncclUniqueId* commId) {
   // We use 3 AllGathers
   // 1. { peerInfo, comm }
@@ -890,7 +891,7 @@ ncclResult_t ncclCommInitRank(ncclComm_t* newcomm, int nranks, ncclUniqueId comm
 
 NCCL_API(ncclResult_t, ncclCommInitAll, ncclComm_t* comms, int ndev, const int* devlist);
 ncclResult_t ncclCommInitAll(ncclComm_t* comms, int ndev, const int* devlist) {
-  
+
   printf("!!!CUSTOMIZE BUILD NCCL RUN!!!\n"); fflush(stdout);
 
   NCCLCHECK(PtrCheck(comms, "CommInitAll", "comms"));
@@ -1006,4 +1007,23 @@ ncclResult_t ncclCommUserRank(const ncclComm_t comm, int* rank) {
   NCCLCHECK(PtrCheck(rank, "CommUserRank", "rank"));
   *rank = comm->rank;
   return ncclSuccess;
+}
+
+
+// Hacking funciton that print out communicator information
+NCCL_API(ncclResult_t, ncclGetCommInfo, const ncclComm_t comm);
+ncclResult_t ncclGetCommInfo( const ncclComm_t comm )
+{
+  INFO(NCCL_COLL, "!!!ncclGetCommInfo!!!", comm->nChannels);
+  NCCLCHECK(PtrCheck(comm, "ncclGetCommInfo", "comm"));
+
+  // Number of channels
+  INFO(NCCL_COLL, "num channel %d", comm->nChannels);
+
+  // Each channel information
+  for ( int channel_id = 0; channel_id < comm->nChannels; ++channel_id )
+  {
+    //const struct ncclChannel* channel_i = comm->channels[channel_id];
+  }
+
 }

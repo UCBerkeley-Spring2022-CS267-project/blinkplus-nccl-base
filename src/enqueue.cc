@@ -410,7 +410,7 @@ static ncclResult_t computeColl(struct ncclInfo* info /* input */, struct ncclCo
   proxyArgs->dtype = info->datatype;
   proxyArgs->redOp = info->op;
   TRACE(NCCL_NET,"opCount %lx slicesteps %d spl %d cpl %d nbytes %zi -> protocol %d nchannels %d nthreads %d, nloops %d nsteps %d comm %p",
-      coll->args.opCount, proxyArgs->sliceSteps, info->nstepsPerLoop, info->nchunksPerLoop, info->nBytes, info->protocol, info->nChannels, info->nThreads,
+      proxyArgs->opCount, proxyArgs->sliceSteps, info->nstepsPerLoop, info->nchunksPerLoop, info->nBytes, info->protocol, info->nChannels, info->nThreads,
       nLoops, proxyArgs->nsteps, info->comm);
   return ncclSuccess;
 }
@@ -426,6 +426,7 @@ static ncclResult_t checkSetStream(struct ncclInfo* info) {
   return ncclSuccess;
 }
 
+// Save execution kernel to internal queue
 ncclResult_t ncclSaveKernel(struct ncclInfo* info) {
   if (info->comm->nRanks == 1 && info->coll != ncclCollSendRecv) {
     if (info->sendbuff != info->recvbuff)

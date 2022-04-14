@@ -296,6 +296,15 @@ ncclResult_t pncclGroupStart();
 ncclResult_t  ncclGroupEnd();
 ncclResult_t pncclGroupEnd();
 
+
+/*
+ * Hacking function that print out communicator information
+ */
+
+ncclResult_t ncclGetCommInfo( ncclComm_t comm );
+ncclResult_t pncclGetCommInfo( ncclComm_t comm );
+
+
 #ifdef __cplusplus
 } // end extern "C"
 #endif
