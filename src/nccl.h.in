@@ -101,6 +101,9 @@ ncclResult_t pncclCommCuDevice(const ncclComm_t comm, int* device);
 ncclResult_t  ncclCommUserRank(const ncclComm_t comm, int* rank);
 ncclResult_t pncclCommUserRank(const ncclComm_t comm, int* rank);
 
+/* Returns the CUDA device ids associated with each rank. */
+ncclResult_t  ncclCommListCuDevice(const ncclComm_t comm, int* devids);
+ncclResult_t pncclCommListCuDevice(const ncclComm_t comm, int* devids);
 /* Reduction operation selector */
 typedef enum { ncclNumOps_dummy = 5 } ncclRedOp_dummy_t;
 typedef enum { ncclSum        = 0,

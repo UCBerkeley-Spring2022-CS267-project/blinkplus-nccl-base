@@ -1114,3 +1114,13 @@ ncclResult_t ncclCommUserRank(const ncclComm_t comm, int* rank) {
   *rank = comm->rank;
   return ncclSuccess;
 }
+
+NCCL_API(ncclResult_t, ncclCommListCuDevice, const ncclComm_t comm, int* devids);
+ncclResult_t ncclCommListCuDevice(const ncclComm_t comm, int* devids) {
+  NVTX3_FUNC_RANGE_IN(nccl_domain);
+  NCCLCHECK(PtrCheck(comm, "CommListCuDevice", "comm"));
+  for(int i = 0; i < comm->nRanks; i++) {
+     devids[i] = (comm->peerInfo + i)->cudaDev;
+  }
+  return ncclSuccess;
+}
