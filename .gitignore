@@ -5,3 +5,7 @@
 
 # CMake
 build/
+
+# NCCL debug file
+debugfile.*
+topo.xml
