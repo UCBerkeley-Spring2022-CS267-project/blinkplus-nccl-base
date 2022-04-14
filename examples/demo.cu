@@ -52,6 +52,8 @@ int main(int argc, char* argv[])
   //initializing NCCL
   NCCLCHECK(ncclCommInitAll(comms, nDev, devs));
 
+  // Get comm info
+  NCCLCHECK( ncclGetCommInfo( comms[0] ) );
 
    //calling NCCL communication API. Group API is required when using
    //multiple devices per thread

@@ -6,11 +6,19 @@
 # build you can use below CUDA_HOME when not under interactive node
 echo $CUDA_HOME
 > /jet/packages/spack/opt/spack/linux-centos8-zen/gcc-8.3.1/cuda-11.1.1-a6ajxenobex5bvpejykhtnfut4arfpwh
+echo $CUDA_HOME
+> /usr/local/cuda-11.4
+> /usr/local/cuda-11.5
+> /usr/local/cuda-11.6
 
 # build V100 use sm_70
 # NOTE: if you are using different platform, change the sm_ compute_ to your target
 # reference https://arnon.dk/tag/nvcc-flags/
+# setting on bridge
 make src.build CUDA_HOME="/jet/packages/spack/opt/spack/linux-centos8-zen/gcc-8.3.1/cuda-11.1.1-a6ajxenobex5bvpejykhtnfut4arfpwh" NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70"
+
+# setting on rise
+make src.build CUDA_HOME="/usr/local/cuda-11.4" NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70" TRACE=1 DEBUG=1 -j 20
 
 make src.build NVCC_GENCODE="-gencode=arch=compute_70,code=sm_70"
 

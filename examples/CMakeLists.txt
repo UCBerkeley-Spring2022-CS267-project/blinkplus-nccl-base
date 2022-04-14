@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0 )
 
 # project name
 project( nccl_example LANGUAGES CXX CUDA )
+message(STATUS "CMAKE_CUDA_COMPILER ${CMAKE_CUDA_COMPILER}")
 
 # find nccl
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)

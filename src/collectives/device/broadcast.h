@@ -13,6 +13,7 @@ __device__ void ncclBroadcastRingKernel(struct CollectiveArgs* args) {
   const int tid = threadIdx.x;
   const int nthreads = args->coll.nThreads-WARP_SIZE;
   const int bid = args->coll.bid;
+  // where this argument come from? if nchannel is change, will this change?
   const int nChannels = args->coll.nChannels;
   struct ncclDevComm* comm = args->comm;
   struct ncclChannel* channel = comm->channels+blockIdx.x;
