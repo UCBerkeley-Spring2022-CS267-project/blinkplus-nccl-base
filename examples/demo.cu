@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <array>
+#include <vector>
 #include "cuda_runtime.h"
 #include "nccl.h"
 
@@ -24,23 +26,22 @@
 
 int main(int argc, char* argv[])
 {
-  ncclComm_t comms[4];
-
-
-  //managing 4 devices
-  int nDev = 4;
+  printf("Using 3 GPU for test\n"); fflush(stdout);
+  // managing 4 devices
   int size = 32*1024*1024;
-  int devs[4] = { 0, 1, 2, 3 };
+  const std::vector<int> devs = { 0,1,2,3,4,5,6,7 };
+  ncclComm_t comms[devs.size()];
 
+  printf("Allocate send & recv buffer\n"); fflush(stdout);
+  // allocating and initializing device buffers
+  float** sendbuff = (float**)malloc(devs.size() * sizeof(float*));
+  float** recvbuff = (float**)malloc(devs.size() * sizeof(float*));
+  cudaStream_t* s = (cudaStream_t*)malloc(sizeof(cudaStream_t)*(devs.size()));
 
-  //allocating and initializing device buffers
-  float** sendbuff = (float**)malloc(nDev * sizeof(float*));
-  float** recvbuff = (float**)malloc(nDev * sizeof(float*));
-  cudaStream_t* s = (cudaStream_t*)malloc(sizeof(cudaStream_t)*nDev);
-
-
-  for (int i = 0; i < nDev; ++i) {
-    CUDACHECK(cudaSetDevice(i));
+  // Allocate memory
+  for ( int i = 0; i < devs.size(); ++i ) 
+  {
+    CUDACHECK(cudaSetDevice( devs[i] ));
     CUDACHECK(cudaMalloc(sendbuff + i, size * sizeof(float)));
     CUDACHECK(cudaMalloc(recvbuff + i, size * sizeof(float)));
     CUDACHECK(cudaMemset(sendbuff[i], 1, size * sizeof(float)));
@@ -48,41 +49,43 @@ int main(int argc, char* argv[])
     CUDACHECK(cudaStreamCreate(s+i));
   }
 
-
   //initializing NCCL
-  NCCLCHECK(ncclCommInitAll(comms, nDev, devs));
-
-  // Get comm info
-  NCCLCHECK( ncclGetCommInfo( comms[0] ) );
+  printf("Initial comm\n"); fflush(stdout);
+  NCCLCHECK(ncclCommInitAll(comms, devs.size(), devs.data()));
 
    //calling NCCL communication API. Group API is required when using
    //multiple devices per thread
+  printf("Run allreduce\n"); fflush(stdout);
   NCCLCHECK(ncclGroupStart());
-  for (int i = 0; i < nDev; ++i)
-    NCCLCHECK(ncclAllReduce((const void*)sendbuff[i], (void*)recvbuff[i], size, ncclFloat, ncclSum,
-        comms[i], s[i]));
+  for ( int i = 0; i < devs.size(); ++i ) 
+  {
+    NCCLCHECK(ncclAllReduce((const void*)sendbuff[i], (void*)recvbuff[i], size, ncclFloat, \
+      ncclSum, comms[i], s[i]));
+  }
   NCCLCHECK(ncclGroupEnd());
 
 
   //synchronizing on CUDA streams to wait for completion of NCCL operation
-  for (int i = 0; i < nDev; ++i) {
-    CUDACHECK(cudaSetDevice(i));
+  for ( int i = 0; i < devs.size(); ++i ) 
+  {
+    CUDACHECK(cudaSetDevice(devs[i]));
     CUDACHECK(cudaStreamSynchronize(s[i]));
   }
 
-
   //free device buffers
-  for (int i = 0; i < nDev; ++i) {
-    CUDACHECK(cudaSetDevice(i));
+  for ( int i = 0; i < devs.size(); ++i )
+  {
+    CUDACHECK(cudaSetDevice(devs[i]));
     CUDACHECK(cudaFree(sendbuff[i]));
     CUDACHECK(cudaFree(recvbuff[i]));
   }
 
 
   //finalizing NCCL
-  for(int i = 0; i < nDev; ++i)
+  for ( int i = 0; i < devs.size(); ++i )
+  {
       ncclCommDestroy(comms[i]);
-
+  }
 
   printf("Success \n");
   return 0;

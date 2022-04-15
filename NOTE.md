@@ -1,8 +1,13 @@
 ## Common use command
 
-* request 4 GPU interactive on
+* request 4 GPU interactive on bridge 2
 ```shell
 salloc -N 1 -p GPU-shared --gres=gpu:4 -q interactive
+```
+
+* request node como on rise
+```shell
+srun --nodelist=como -t 60:00 --pty bash
 ```
 
 * check nvlink connection

@@ -592,6 +592,7 @@ static ncclResult_t initTransportsRank(struct ncclComm* comm, ncclUniqueId* comm
   NCCLCHECK(ncclTopoPrint(comm->topo));
 
   // Get rings and trees
+  // Different patternm meaning : https://github.com/NVIDIA/nccl/issues/448 
   struct ncclTopoGraph ringGraph;
   ringGraph.id = 0;
   ringGraph.pattern = NCCL_TOPO_PATTERN_RING;

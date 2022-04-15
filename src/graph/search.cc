@@ -790,7 +790,7 @@ ncclResult_t ncclTopoPrintGraph(struct ncclTopoSystem* system, struct ncclTopoGr
 
   char line[1024];
   for (int c=0; c<graph->nChannels; c++) {
-    sprintf(line, "%2d :", c);
+    sprintf(line, "chnl %2d :", c);
     int offset = strlen(line);
     if (system->nodes[NET].count > 0) {
       sprintf(line+offset, " %s/%d", topoNodeTypeStr[NET], graph->inter[2*c]);
