@@ -47,7 +47,13 @@ NCCL_GRAPH_DUMP_FILE=`pwd`/graph.xml
 ## profiling
 ```shell
 # save profile result
-/usr/local/cuda-11.5/bin/nvprof -o output.nvvp ./examples/build/demo
+/usr/local/cuda-11.5/bin/nvprof -o output.nvvp ./examples/build/demo_group01
+
+# XWindows open remote
+ssh -X mengyibai@freddie.millennium.berkeley.edu -i ~/.ssh/id_rsa
+
+# Display
+/usr/local/cuda-11.5/bin/nvvp -vm /home/eecs/mengyibai/jdk8u322-b06-jre/bin/java output.nvvp
 
 # visual result
 /usr/local/cuda-11.5/bin/nvvp output.nvvp
