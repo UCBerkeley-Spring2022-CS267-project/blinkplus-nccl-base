@@ -43,3 +43,12 @@ NCCL_DEBUG_FILE=`pwd`/debugfile.%h.%p
 # save graph file
 NCCL_GRAPH_DUMP_FILE=`pwd`/graph.xml
 ```
+
+## profiling
+```shell
+# save profile result
+/usr/local/cuda-11.5/bin/nvprof -o output.nvvp ./examples/build/demo
+
+# visual result
+/usr/local/cuda-11.5/bin/nvvp output.nvvp
+```

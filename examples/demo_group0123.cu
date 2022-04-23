@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <array>
+#include <cstdlib>
 #include <vector>
 #include <cstdlib>
 #include <string>
@@ -25,15 +26,26 @@
   }                                                 \
 } while(0)
 
-
 int main(int argc, char* argv[])
 {
+  // set enviroment variable before run
+  // this is program level setting and thus do not pollute global 
+  setenv( "NCCL_PROTO", "Simple", 1);
+  setenv( "NCCL_DEBUG", "Info", 1);
+  setenv( "NCCL_DEBUG_SUBSYS", "ALL", 1);
+  setenv( "NCCL_ALGO", "Tree", 1 ); // Tree : AllReduceTree+BroadcastRing | Ring : AllReduceRing+BroadcastRing
+
   // managing 4 devices
-  int size = 4*1024*1024;
+  int size;
+  if ( argc >= 2 )
+    size = atoi( argv[ 1 ] );
+  else
+    size = 4*1024*1024;
+
   const std::vector<int> devs = { 0,1,2,3 };
   int nDevs = 4;
   ncclComm_t comms[nDevs];
-  printf("Using %d GPU for test\n", nDevs ); fflush(stdout);
+  printf("Using %d GPU for test on size %d\n", nDevs, size ); fflush(stdout);
 
   printf("Allocate send & recv buffer\n"); fflush(stdout);
   // allocating and initializing device buffers
@@ -57,11 +69,10 @@ int main(int argc, char* argv[])
   // Set enviroment variable to search
   if ( std::getenv("NCCL_GRAPH_FILE_CHAIN_0123") == nullptr )
   {
-    throw std::runtime_error("NCCL_GRAPH_FILE_CHAIN_0123 not set\b");
+     throw std::runtime_error("NCCL_GRAPH_FILE_CHAIN_0123 not set\b");
   }
 
-  //setenv( "NCCL_GRAPH_FILE", std::getenv("NCCL_GRAPH_FILE_CHAIN_0123") , 1 );
-  //setenv("NCCL_GRAPH_DUMP_FILE", "/home/eecs/mengyibai/xiaosx/nccl-BLINKplus/graph.xml", 1 );
+  setenv( "NCCL_GRAPH_FILE", std::getenv("NCCL_GRAPH_FILE_CHAIN_0123") , 1 );
 
   //initializing NCCL
   printf("Initial comm\n"); fflush(stdout);
@@ -69,6 +80,23 @@ int main(int argc, char* argv[])
 
    //calling NCCL communication API. Group API is required when using
    //multiple devices per thread
+  printf("Run call reduce\n"); fflush(stdout);
+  NCCLCHECK(ncclGroupStart());
+  for ( int i = 0; i < nDevs; ++i ) 
+  {
+    // allreduce
+    NCCLCHECK(ncclAllReduce((const void*)sendbuff[i], (void*)recvbuff[i], size, ncclFloat, ncclSum, comms[i], s[i]));
+  }
+  NCCLCHECK(ncclGroupEnd());
+
+  //synchronizing on CUDA streams to wait for completion of NCCL operation
+  printf("stream synchronize\n"); fflush(stdout);
+  for ( int i = 0; i < nDevs; ++i ) 
+  {
+    CUDACHECK(cudaSetDevice(devs[i]));
+    CUDACHECK(cudaStreamSynchronize(s[i]));
+  }
+
   printf("Run broadcast\n"); fflush(stdout);
   NCCLCHECK(ncclGroupStart());
   for ( int i = 0; i < nDevs; ++i ) 

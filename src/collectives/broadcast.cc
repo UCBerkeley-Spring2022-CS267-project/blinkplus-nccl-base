@@ -11,11 +11,23 @@ NCCL_API(ncclResult_t, ncclBroadcast, const void* sendbuff, void* recvbuff, size
     ncclComm_t comm, cudaStream_t stream);
 ncclResult_t ncclBroadcast(const void* sendbuff, void* recvbuff, size_t count, ncclDataType_t datatype, int root,
     ncclComm_t comm, cudaStream_t stream) {
-  struct ncclInfo info = { ncclCollBroadcast, "Broadcast",
-    sendbuff, recvbuff, count, datatype, ncclSum, root, comm, stream, /* Args */
-    BROADCAST_CHUNKSTEPS, BROADCAST_SLICESTEPS };
+  struct ncclInfo info = { 
+    ncclCollBroadcast,  // coll
+    "Broadcast", // opName
+    sendbuff, // sendbuff
+    recvbuff,  // recvbuff
+    count,  // count
+    datatype, // datatype
+    ncclSum, // op
+    root, // root
+    comm, // comm
+    stream, // stream
+    /* Args */
+    BROADCAST_CHUNKSTEPS, // chunkSteps
+    BROADCAST_SLICESTEPS }; // sliceSteps
   return ncclEnqueueCheck(&info);
 }
+
 /* Deprecated original "in place" function, similar to MPI */
 NCCL_API(ncclResult_t, ncclBcast, void* buff, size_t count, ncclDataType_t datatype, int root,
     ncclComm_t comm, cudaStream_t stream);

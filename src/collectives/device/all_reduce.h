@@ -7,6 +7,7 @@
 #include "devcomm.h"
 #include "primitives.h"
 #include "collectives.h"
+#include <cstdio>
 
 template<int UNROLL, class FUNC, typename T>
 __device__ void ncclAllReduceRingKernel(struct CollectiveArgs* args) {
@@ -22,6 +23,9 @@ __device__ void ncclAllReduceRingKernel(struct CollectiveArgs* args) {
   const int nranks = comm->nRanks;
   const ssize_t loopSize = nChannels*(ssize_t)chunkSize;
   const ssize_t size = args->coll.count;
+
+  // printf("ncclAllReduceRingKernel called\n  size %d\n  nchannel %d\n  nthread %d\n  nranks %d\n  loopSize %d\n", \
+    size, nChannels, nthreads, nranks, loopSize ); 
 
   // Compute pointers
   const T * __restrict__ thisInput = (const T*)args->sendbuff;
@@ -100,6 +104,9 @@ __device__ void ncclAllReduceTreeKernel(struct CollectiveArgs* args) {
   if (loopSize > size) {
     chunkSize = DIVUP(size, nChannels*minChunkSize)*minChunkSize;
   }
+
+  //printf("ncclAllReduceTreeKernel called\n  size %d\n  nchannel %d\n  nthread %d\n  loopSize %d\n", \
+    size, nChannels, nthreads, loopSize ); 
 
   // Compute pointers
   const T * __restrict__ thisInput = (const T*)args->sendbuff;

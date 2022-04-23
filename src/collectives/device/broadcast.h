@@ -8,8 +8,14 @@
 #include "primitives.h"
 #include "collectives.h"
 
+/**
+ * @note 
+ * 
+ * 1. number of kernel launch (blockDim.x) depend on the input data size
+ */
 template<int UNROLL, class FUNC, typename T>
-__device__ void ncclBroadcastRingKernel(struct CollectiveArgs* args) {
+__device__ void ncclBroadcastRingKernel(struct CollectiveArgs* args) 
+{
   const int tid = threadIdx.x;
   const int nthreads = args->coll.nThreads-WARP_SIZE;
   const int bid = args->coll.bid;
@@ -26,6 +32,9 @@ __device__ void ncclBroadcastRingKernel(struct CollectiveArgs* args) {
   const int nextRank = ring->devUserRanks[1];
   const int root = args->coll.root;
 
+  // printf("ncclBroadcastRingKernel called\n  size %lu\n  nChannels %d/%d\n  nthreads %d\n  loopSize %lu\n  chunkSize %d\n  bid %d\n", \
+    size, nChannels, args->coll.nChannels, nthreads, loopSize, chunkSize, bid ); 
+
   // Compute pointers
   const T * __restrict__ thisInput = (const T*)args->sendbuff;
   T * __restrict__ thisOutput = (T*)args->recvbuff;
@@ -33,7 +42,9 @@ __device__ void ncclBroadcastRingKernel(struct CollectiveArgs* args) {
   ncclPrimitives<UNROLL, BROADCAST_CHUNKSTEPS/BROADCAST_SLICESTEPS, BROADCAST_SLICESTEPS, T, 1, 1, 0, FUNC>
     prims(tid, nthreads, &ring->prev, &ring->next, NULL, stepSize, channel, comm);
 
-  for (ssize_t gridOffset = 0; gridOffset < size; gridOffset += loopSize) {
+  for (ssize_t gridOffset = 0; gridOffset < size; gridOffset += loopSize) 
+  {
+    // Each iteration send one "chunk" of data
     int realChunkSize = min(chunkSize, DIVUP(size-gridOffset,nChannels));
     ALIGN_SIZE(realChunkSize, nthreads*sizeof(uint64_t)/sizeof(T));
     ssize_t offset = gridOffset + bid*realChunkSize;
@@ -54,7 +65,10 @@ __device__ void ncclBroadcastRingKernel(struct CollectiveArgs* args) {
 }
 
 template<int UNROLL, class FUNC, typename T>
-__device__ void ncclBroadcastTreeKernel(struct CollectiveArgs* args) { }
+__device__ void ncclBroadcastTreeKernel(struct CollectiveArgs* args) 
+{
+  //printf("ncclBroadcastTreeKernel called\n"); 
+}
 
 template<int UNROLL, class FUNC, typename T>
 __device__ void ncclBroadcastCollNetKernel(struct CollectiveArgs* args) { }

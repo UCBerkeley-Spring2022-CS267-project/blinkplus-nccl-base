@@ -81,6 +81,8 @@ ncclResult_t ncclLaunchCooperativeKernelMultiDevice(struct cudaLaunchParams *par
   for (int i = 0; i < numDevices; i++) {
     struct cudaLaunchParams* params = paramsList+i;
     CUDACHECK(cudaSetDevice(cudaDevs[i]));
+    //printf("GPU %d launch kernel of size grid dim = (%d, %d, %d) block dim = (%d, %d, %d)\n", \
+      cudaDevs[i], params->gridDim.x, params->gridDim.y, params->gridDim.z, params->blockDim.x, params->blockDim.y, params->blockDim.z );
     CUDACHECK(cudaLaunchKernel(params->func, params->gridDim, params->blockDim, params->args, params->sharedMem, params->stream));
   }
   CUDACHECK(cudaSetDevice(savedDev));
@@ -356,6 +358,9 @@ static ncclResult_t computeColl(struct ncclInfo* info /* input */, struct ncclCo
   coll->args.coll.nChannels = info->nChannels;
   coll->args.coll.nThreads = info->nThreads;
 
+  //printf("computeColl coll->args.coll.nChannels %d\n", coll->args.coll.nChannels );
+  //printf("computeColl coll->args.coll.nThreads %d\n", coll->args.coll.nThreads );
+
   coll->funcIndex = FUNC_INDEX(info->coll, info->op, info->datatype, info->algorithm, info->protocol);
 
   int stepSize   = info->comm->buffSizes[info->protocol]/NCCL_STEPS;
@@ -426,7 +431,12 @@ static ncclResult_t checkSetStream(struct ncclInfo* info) {
   return ncclSuccess;
 }
 
-// Save execution kernel to internal queue
+/**
+ * @brief Save execution kernel to internal queue
+ * 
+ * @param info collective kernel set this info to used for enqueue
+ * @return ncclResult_t 
+ */
 ncclResult_t ncclSaveKernel(struct ncclInfo* info) {
   if (info->comm->nRanks == 1 && info->coll != ncclCollSendRecv) {
     if (info->sendbuff != info->recvbuff)
@@ -443,6 +453,10 @@ ncclResult_t ncclSaveKernel(struct ncclInfo* info) {
 
   int nChannels = info->coll == ncclCollSendRecv ? 1 : coll.args.coll.nChannels;
   int nSubChannels = (info->pattern == ncclPatternCollTreeUp || info->pattern == ncclPatternCollTreeDown) ? 2 : 1;
+
+  // printf("saveKernel blockDim.x %d\n", info->comm->myParams->blockDim.x );
+  // printf("saveKernel nChannels %d\n", nChannels );
+  // printf("saveKernel nSubChannels %d\n", nSubChannels );
 
   for (int bid=0; bid<nChannels*nSubChannels; bid++) {
     int channelId = (info->coll == ncclCollSendRecv) ? info->channelId :
@@ -522,6 +536,12 @@ ncclResult_t ncclSaveP2p(struct ncclInfo* info) {
   return ncclSuccess;
 }
 
+/**
+ * @brief Enqueue collective kernel & check before enqueue
+ * 
+ * @param info collective kernel set this info to used for enqueue
+ * @return ncclResult_t 
+ */
 ncclResult_t ncclEnqueueCheck(struct ncclInfo* info) {
   // Launch asynchronously if needed
   if (ncclAsyncMode()) {
