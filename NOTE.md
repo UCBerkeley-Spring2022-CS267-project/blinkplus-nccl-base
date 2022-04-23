@@ -29,13 +29,17 @@ vim ~/.nccl.conf
 content of the config file
 ```conf
 # DUMP topology
-NCCL_TOPO_DUMP_FILE=/jet/home/xiaosx/cs267/nccl/topo.xml
+NCCL_TOPO_DUMP_FILE=`pwd`/topo.xml
 # use simple proto instead of LL (low latency)
 NCCL_PROTO=Simple
 # show debug info
 NCCL_DEBUG=Info
+# debug subsystem
+NCCL_DEBUG_SUBSYS=ALL
 # choose algo
 NCCL_ALGO=Ring
 # debug file
-NCCL_DEBUG_FILE=/jet/home/xiaosx/cs267/nccl-BLINKplus/debugfile.%h.%p
+NCCL_DEBUG_FILE=`pwd`/debugfile.%h.%p
+# save graph file
+NCCL_GRAPH_DUMP_FILE=`pwd`/graph.xml
 ```

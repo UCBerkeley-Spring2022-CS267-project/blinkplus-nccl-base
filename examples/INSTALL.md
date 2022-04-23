@@ -8,7 +8,7 @@ cd build
 cmake ..
 
 # build on rise
-cmake .. -DCMAKE_CUDA_COMPILER=/usr/local/cuda-11.4/bin/nvcc
+cmake .. -DCMAKE_CUDA_COMPILER=/usr/local/cuda-11.5/bin/nvcc -DCMAKE_BUILD_TYPE=Release
 
 make -j 10
 
