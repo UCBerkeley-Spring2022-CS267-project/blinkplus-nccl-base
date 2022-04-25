@@ -29,32 +29,4 @@ export NCCL_ROOT_DIR=`pwd`/build
 # under nccl root directory
 export NCCL_HOME=`pwd`/build/
 export LD_LIBRARY_PATH=`pwd`/build/lib:$LD_LIBRARY_PATH 
-
-# Export graph file path
-# under nccl root directory
-export NCCL_GRAPH_FILE_CHAIN_01=`pwd`/chain01.xml
-export NCCL_GRAPH_FILE_CHAIN_021=`pwd`/chain021.xml
-export NCCL_GRAPH_FILE_CHAIN_031=`pwd`/chain031.xml
-export NCCL_GRAPH_FILE_CHAIN_0321=`pwd`/chain0321.xml
-export NCCL_GRAPH_FILE_CHAIN_0123=`pwd`/chain0123.xml
-
-# validate export
-echo $NCCL_ROOT_DIR
-echo $NCCL_HOME
-echo $LD_LIBRARY_PATH
-echo $NCCL_GRAPH_FILE_CHAIN_01
-echo $NCCL_GRAPH_FILE_CHAIN_021
-echo $NCCL_GRAPH_FILE_CHAIN_031
-echo $NCCL_GRAPH_FILE_CHAIN_0321
-echo $NCCL_GRAPH_FILE_CHAIN_0123
-```
-
-## Common use env var
-```shell
-# show debug info
-export NCCL_DEBUG=Info
-# debug subsystem
-export NCCL_DEBUG_SUBSYS=ALL
-# choose algo
-export NCCL_ALGO=Ring
 ```
