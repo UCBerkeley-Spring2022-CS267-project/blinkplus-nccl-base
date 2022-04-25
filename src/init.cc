@@ -1009,22 +1009,3 @@ ncclResult_t ncclCommUserRank(const ncclComm_t comm, int* rank) {
   *rank = comm->rank;
   return ncclSuccess;
 }
-
-
-// Hacking funciton that print out communicator information
-NCCL_API(ncclResult_t, ncclGetCommInfo, const ncclComm_t comm);
-ncclResult_t ncclGetCommInfo( const ncclComm_t comm )
-{
-  INFO(NCCL_COLL, "!!!ncclGetCommInfo!!!", comm->nChannels);
-  NCCLCHECK(PtrCheck(comm, "ncclGetCommInfo", "comm"));
-
-  // Number of channels
-  INFO(NCCL_COLL, "num channel %d", comm->nChannels);
-
-  // Each channel information
-  for ( int channel_id = 0; channel_id < comm->nChannels; ++channel_id )
-  {
-    //const struct ncclChannel* channel_i = comm->channels[channel_id];
-  }
-
-}
